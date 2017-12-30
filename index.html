@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var tempo = 170 + Math.floor(Math.random() * 21);
+var fileString = "BPM"+tempo+".mp3"
+
+function loadFile(){
+	//document.getElementById("AudioFile").src = fileString;
+	//document.getElementById("AudioObject").load();
+	//document.getElementById("AudioObject").play();
+	
+	var audio = new Audio(fileString);
+	audio.play();
+}
+
+loadFile();
+
+var doneAlready = 0;
+
+
+function activateResult(guess) {
+
+	if(doneAlready == 1){
+		return;
+	}
+	var difference = tempo - guess;
+	var resultString = "";
+	if(difference == 0){
+		resultString = "You guessed the correct tempo! Refresh the page and try again!";
+		incrementNumCorrect();
+	}
+	if(difference < 0){
+		resultString  = "The correct tempo was " + tempo + ", but you guessed " + guess + ". You overestimated the tempo by " + (difference * -1) +
+		". Refresh the page and try again!";
+		incrementNumWrong(Math.abs(difference));
+	}
+	if(difference > 0){
+		resultString  = "The correct tempo was " + tempo + ", but you guessed " + guess + ". You underestimated the tempo by " + (difference) +
+		". Refresh the page and try again!";
+		incrementNumWrong(Math.abs(difference));
+	}
+    document.getElementById("Result").innerHTML = resultString;
+	
+	updateStatDisplay();
+	doneAlready = 1;
+}
+
+function getNumCorrect(){
+	var correctResult = localStorage.getItem("correct");
+	if(correctResult != null){
+		return parseInt(correctResult);
+	}else{
+		localStorage.setItem("correct" , 0);
+		return 0;
+	}
+}
+
+function incrementNumCorrect(){
+	var current = getNumCorrect();
+	localStorage.setItem("correct" , current+1);
+	appendAverageError(0);
+}
+function getNumWrong(){
+	var correctResult = localStorage.getItem("wrong");
+	if(correctResult != null){
+		return parseInt(correctResult);
+	}else{
+		localStorage.setItem("wrong" , 0);
+		return 0;
+	}
+}
+function incrementNumWrong(recentError){
+	var current = getNumWrong();
+	localStorage.setItem("wrong" , current+1);
+	appendAverageError(recentError);
+}
+
+//Only to be used by incrementNumCorrect and incrementNumWrong
+function appendAverageError(recentError){
+	var currentAverage = getAverageError();
+	if(currentAverage == "None Yet"){
+		currentAverage = 0;
+	}
+	var total = getNumCorrect()+getNumWrong();
+	var newAverage = ((total-1)*currentAverage+recentError)/total;
+	localStorage.setItem("averageError", newAverage);
+}
+function getAverageError(){
+	if(localStorage.getItem("averageError") == null){
+		return "None Yet";
+	}
+	return parseFloat(localStorage.getItem("averageError"));
+}
+function resetLocal(){
+	localStorage.clear();
+}
+function updateStatDisplay(){
+	var correctCount = getNumCorrect();
+	var totalCount= getNumWrong() + getNumCorrect();
+	var error = getAverageError();
+	document.getElementById("Correct").innerHTML = "You have guessed "+correctCount+" out of " + totalCount + " perfectly correct.";
+	document.getElementById("Error").innerHTML = "Your average error is " + error;
+}
+
+</script>
+
+
+
+<head>
+<title>What tempo is this?</title>
+</head>
+<h1>What tempo is this?</h1>
+
+<table style="width:50%">
+  
+  <tr>
+    <td><button type="button" onclick = "activateResult(170)">170</button></td>
+    <td><button type="button" onclick = "activateResult(175)">175</button></td>
+	<td><button type="button" onclick = "activateResult(180)">180</button></td>
+	<td><button type="button" onclick = "activateResult(185)">185</button></td>
+	<td><button type="button" onclick = "activateResult(190)">190</button></td>
+  </tr>
+  <tr>
+    <td><button type="button" onclick = "activateResult(171)">171</button></td>
+    <td><button type="button" onclick = "activateResult(176)">176</button></td>
+	<td><button type="button" onclick = "activateResult(181)">181</button></td>
+	<td><button type="button" onclick = "activateResult(186)">186</button></td>	
+  </tr>
+  <tr>
+    <td><button type="button" onclick = "activateResult(172)">172</button></td>
+    <td><button type="button" onclick = "activateResult(177)">177</button></td>
+	<td><button type="button" onclick = "activateResult(182)">182</button></td>
+	<td><button type="button" onclick = "activateResult(187)">187</button></td>	
+  </tr>
+  <tr>
+    <td><button type="button" onclick = "activateResult(173)">173</button></td>
+    <td><button type="button" onclick = "activateResult(178)">178</button></td>
+	<td><button type="button" onclick = "activateResult(183)">183</button></td>
+	<td><button type="button" onclick = "activateResult(188)">188</button></td>	
+  </tr>
+  <tr>
+    <td><button type="button" onclick = "activateResult(174)">174</button></td>
+    <td><button type="button" onclick = "activateResult(179)">179</button></td>
+	<td><button type="button" onclick = "activateResult(184)">184</button></td>
+	<td><button type="button" onclick = "activateResult(189)">189</button></td>	
+  </tr>
+</table>
+<body onload = "updateStatDisplay()">
+<p id = "Result"></p></br></br></br>
+<p id = "Correct"></p></br>
+<p id = "Incorrect"></p></br>
+<p id = "Error"></p></br>
+<p id = "Reset"><button type="button" onclick = "resetLocal()">Reset Stats</button></p>
+</body>
+
+</html>
